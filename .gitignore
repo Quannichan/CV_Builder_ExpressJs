@@ -7,3 +7,4 @@
 /generated
 # /src/dev.js
 .env
+/dist
