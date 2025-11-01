@@ -175,11 +175,23 @@ CVAI_BE_Expressjs
 - Go to cmd
 
 ```bash
-git clone <https://github.com/Quannichan/CV_Builder_Expressjs.git>
+# clone to local
+git clone https://github.com/Quannichan/CV_Builder_Expressjs.git
+
+# install node package
 npm install
-init .env
-.env variables
-npm run dev
+
+# run for de
+npm run dev 
+
+# run for test
+npm run test
+
+# build to production
+npm run build
+
+# run production
+npm run product
 ```
 
 - .env variables
