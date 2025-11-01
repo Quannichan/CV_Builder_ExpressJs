@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const { formatDateToSQL, writeFile } = require("../tools/commonTools");
 const { prisma } = require("../config/connectSql");
 const { ModAvaDTO } = require("../DTO/user/ModAvaDTO");
@@ -11,6 +13,70 @@ const { ModPassDTO } = require("../DTO/user/ModPassDTO");
 const Hashtool = require("../security/HashTool");
 class infoModel{
 
+    async doServicePublicGet(req, res){
+        const sv = req.query.sv;
+        if(sv){
+            switch (sv) {
+                case "SvVerify":
+                    await this.verify(req, res);
+                    break;
+
+                default:
+                    res.json({
+                        "status" : 2004,
+                    })
+            }
+        }
+    }
+
+    async verify(req, res){
+        if(req.query.t){
+            const tok = JSON.parse(new Hashtool().decodeAES(req.query.t));
+            if(tok.id && tok.mail && tok.e){
+
+                const expireDate = new Date(tok.e);
+                if (expireDate < new Date()) {
+                    return res.redirect(`${process.env.FRONTEND_URL}/verify/account`);
+                }
+
+                const u = await prisma.user.findUnique({
+                    where : {
+                        id : tok.id*1,
+                        mail : tok.mail,
+                    }
+                });
+
+                if(u && u.id){
+
+                    const idu = tok.id;
+                    const mail = tok.mail;
+                    delete tok.e;
+                    const now = new Date();
+                    tok.vd = now.getTime();
+                    const verifyTok = new Hashtool().encodeAES(JSON.stringify(tok));
+
+                    await prisma.user.update({
+                        where : {
+                            id : tok.id*1,
+                            mail : tok.mail,
+                        },
+                        data : {
+                            emailVerified : true,
+                            verifyToken : verifyTok
+                        }
+                    });
+                    return res.redirect(`${process.env.FRONTEND_URL}/verify/account?i=${idu}&m=${mail}&vt=${verifyTok}`);
+                }else{
+                    return res.redirect(`${process.env.FRONTEND_URL}/verify/account`);
+                }
+            }else{
+                return res.redirect(`${process.env.FRONTEND_URL}/verify/account`);
+            }
+        }else{
+            return res.redirect(`${process.env.FRONTEND_URL}/verify/account`);
+        }
+    }
+
     async doServicePubl(req, res){
         const sv = req.body.serv;
         try{
@@ -18,6 +84,10 @@ class infoModel{
                 switch (sv) {
                     case "SvPage":
                         await this.getLstPage(req, res);
+                        break;
+
+                    case "SvCheckVerify":
+                        await this.checkVerify(req, res);
                         break;
 
                     case "SvGet":
@@ -35,15 +105,42 @@ class infoModel{
                         break;
                 }
             }else{
-                res.json({
-                    "status" : 2004,
-                })
+                
             }
         }catch(errr){
             console.log(errr);
             res.json({
                 "status" : 2005,
             })
+        }
+    }
+
+    async checkVerify(req, res){
+        const {id, mail, verifyToken} = req.body;
+        if(id && mail && verifyToken){
+            const checkVT = JSON.parse(new Hashtool().decodeAES(verifyToken));
+            const u = await prisma.user.findUnique({
+                where : {
+                    id : id*1,
+                    mail : mail
+                }
+            });
+
+            const qVT = JSON.parse(new Hashtool().decodeAES(u.verifyToken));
+
+            if(checkVT.id*1 == qVT.id*1 && checkVT.mail == qVT.mail && checkVT.vd == qVT.vd){
+                res.json({
+                    "status" : 2000
+                });
+            }else{
+                res.json({
+                    "status" : 2001
+                });
+            }
+        }else{
+            res.json({
+                "status" : 2001
+            });
         }
     }
 

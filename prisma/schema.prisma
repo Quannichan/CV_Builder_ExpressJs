@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -15,71 +9,71 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
+  id            Int           @id @default(autoincrement())
   name          String?
-  descript      String? @db.LongText
-  sex           Int @default(1) // 1 là nam, 2 là nữ
+  descript      String?       @db.LongText
+  sex           Int           @default(1)
   address       String?
   job           String?
-  birthdate     DateTime? 
-  
+  birthdate     DateTime?
   portfolio     String?
   twitter       String?
   reddit        String?
   github        String?
   facebook      String?
-  mail          String? @unique
-  phone         String? @unique
+  mail          String?       @unique
+  phone         String?       @unique
   linked        String?
-  
   ava           String?
   pass          String?
-  role          Int 
-  date01        DateTime? @default(now())
+  role          Int
+  date01        DateTime?     @default(now())
   date02        DateTime?
+  accountType   Int?
+  emailVerified Boolean       @default(false)
+  verifyToken   String?       @db.VarChar(255)
+  Payment       Payment[]
+  posts         Post[]
+  CV            PostSample[]
+  SharedPosts   SharedPosts[]
 
-  accountType   Int? // 0 basic, 1 standard, 2 professional
-
-  posts     Post[]
-
-  Payment Payment[]
-
-  CV PostSample[]
-
-  SharedPosts SharedPosts[]
+  @@index([emailVerified])
+  @@index([role])
 }
 
 model SharedPosts {
   userId Int
   postId Int
-
-  user   User @relation(fields: [userId], references: [id])
-  post   Post @relation(fields: [postId], references: [id])
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, postId])
+  @@index([postId], map: "SharedPosts_postId_fkey")
 }
 
 model Post {
-  id       Int      @id @default(autoincrement())
-  iduser   Int
-  img      String?  @db.LongText
-  content  String?  @db.LongText
-  stat01   Int? // 1: private, 2 public, 3 share
-  typ01    String? // font
-  stat02   Int?
-  lang     String @default("vi")
-  date01   DateTime? @default(now())
-  date02   DateTime?
-  idSample Int
-
-  user     User?      @relation(fields: [iduser], references: [id])
-  PostSample PostSample @relation(fields: [idSample], references: [id])
-
+  id          Int           @id @default(autoincrement())
+  iduser      Int?
+  img         String?       @db.LongText
+  content     String?       @db.LongText
+  stat01      Int?
+  stat02      Int?
+  lang        String        @default("vi")
+  date01      DateTime?     @default(now())
+  date02      DateTime?
+  idSample    Int
+  typ01       String?
+  PostSample  PostSample    @relation(fields: [idSample], references: [id])
+  user        User?         @relation(fields: [iduser], references: [id])
   SharedPosts SharedPosts[]
+
+  @@index([idSample])
+  @@index([iduser])
+  @@index([lang])
 }
 
-model PostSample{
-  id       Int      @id @default(autoincrement())
+model PostSample {
+  id       Int       @id @default(autoincrement())
   iduser   Int?
   img      String?
   name     String
@@ -89,20 +83,23 @@ model PostSample{
   typ03    Json?
   date01   DateTime? @default(now())
   date02   DateTime?
-
   used     Post[]
-  user     User?      @relation(fields: [iduser], references: [id])
+  user     User?     @relation(fields: [iduser], references: [id])
+
+  @@index([iduser])
 }
 
 model Payment {
-  id        Int      @id @default(autoincrement())
-  iduser    Int
-  type      Int
-  amount    Int
-  data01    String   @db.LongText
-  status    Int
-  date01    DateTime @default(now())
-  date02    DateTime?
+  id     Int       @id @default(autoincrement())
+  iduser Int
+  type   Int
+  amount Int
+  data01 String    @db.LongText
+  status Int
+  date01 DateTime  @default(now())
+  date02 DateTime?
+  user   User      @relation(fields: [iduser], references: [id], onDelete: Cascade)
 
-  user      User     @relation(fields: [iduser], references: [id])
+  @@index([iduser])
+  @@index([type, status])
 }

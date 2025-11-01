@@ -2,6 +2,7 @@ const { RegisterDTO } = require("../DTO/auth/RegisterDTO")
 const loginModel = require("../models/loginModel")
 const registerModel = require("../models/registerModel")
 const Hashtool = require("../security/HashTool")
+const sendmail = require("../tools/mail")
 const { roleMapping } = require("../tools/mapping")
 
 class registerController{
@@ -13,13 +14,22 @@ class registerController{
                 registerData.pass = await new Hashtool().Hash(registerData.pass);
                 const data = await new registerModel().register(registerData, res);
                 if(data){
-                    if(data.status){
-                        res.json(data);
-                    }else{
-                        const token = await new loginModel().createToken(data.id, data.role);
-                        delete data.pass;
-                        res.json({"status" : 2000, "userdata" : data, "tokenizer" : token, "role" : roleMapping(data.role+"")})
-                    }
+                    // const token = await new loginModel().createToken(data.id, data.role);
+                    // delete data.pass;
+                    // res.json({"status" : 2000, "userdata" : data, "tokenizer" : token, "role" : roleMapping(data.role+"")})
+
+                    await sendmail.sendMail(data.mail, data.id, data.name, 30)
+                    .then((data)=>{
+                        if(data){
+                            res.json({"status" : 2000})
+                        }else{
+                            res.json({"status" : 2001})
+                        }
+                    })
+                    .catch((e)=>{
+                        res.json({"status" : 2005})
+                    })
+
                 }else{
                     res.json({
                         "status"  : 2002,
@@ -28,7 +38,7 @@ class registerController{
             }else{
                 res.json({
                     "status"  : 2001,
-                    "msg"     : "User_exist"
+                    "msg"     : "Tài khoản đã tồn tại!"
                 });
             }
         }catch(error){
