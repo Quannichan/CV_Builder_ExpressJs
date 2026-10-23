@@ -1,22 +1,20 @@
 
 require("dotenv").config();
 
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend");
 const Hashtool = require("../security/HashTool");
 const { verifyEmailTemplate } = require("../utils/verifyEmailTemplate");
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.MAIL_FROM,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 class Mail {
   async verifyTransport() {
-    await transporter.verify();
-    console.log("SMTP connection and authentication successful.");
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("Missing RESEND_API_KEY environment variable.");
+    }
+
+    console.log("Resend API configuration is present.");
+    return true;
   }
 
   async sendMail(toEmail, iduser, name, minutes) {
@@ -37,18 +35,33 @@ class Mail {
     const message = verifyEmailTemplate(verifyUrl, name, minutes);
 
     const mailOptions = {
-      from: process.env.MAIL_FROM,
+      from:
+        process.env.MAIL_FROM,
       to: toEmail,
       subject: "Verify your account!",
       html: message,
     };
 
     try {
-      const info = await transporter.sendMail(mailOptions);
-      console.log("Email sent:", info.response);
+      if (!process.env.RESEND_API_KEY) {
+        throw new Error("Missing RESEND_API_KEY environment variable.");
+      }
+
+      const { data, error } = await resend.emails.send(mailOptions);
+
+      if (error) {
+        console.error("Send email failed:", error);
+        throw new Error(error.message || "Resend failed to send email.");
+      }
+
+      console.log("Email accepted by Resend:", {
+        id: data?.id,
+        to: toEmail,
+      });
+
       return true;
     } catch (error) {
-      console.error("Send email failed:", error.code, error.message);
+      console.error("Send email failed:", error.message);
       throw error;
     }
   }
