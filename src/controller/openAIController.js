@@ -1,10 +1,10 @@
-const OpenAIModel = require("../models/openAIModel");
+const openAIModel = require("../models/openAIModel");
 
-class OpenAIController{
+class openAIController{
 
     async Service(req, res){
         try{
-            await new OpenAIModel().Service(req, res);
+            await new openAIModel().Service(req, res);
         }catch(err){
             console.log(err);
             res.json({
@@ -15,4 +15,4 @@ class OpenAIController{
 
 }
 
-module.exports = OpenAIController;
+module.exports = openAIController;

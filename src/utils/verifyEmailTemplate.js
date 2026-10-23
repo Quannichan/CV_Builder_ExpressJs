@@ -9,7 +9,7 @@ function verifyEmailTemplate(verifyUrl, name = "bạn", minutes) {
         <h2>Chào ${name},</h2>
         <p>Cảm ơn bạn đã đăng ký tài khoản CVLAB.</p>
         <p>Hãy bấm nút bên dưới để xác nhận email của bạn:</p>
-        <p style="text-align:center">
+        <p style="text-align:left">
           <a href="${verifyUrl}" 
             style="background:#2563eb;color:#fff;padding:10px 20px;
                     border-radius:8px;text-decoration:none;font-weight:bold;">

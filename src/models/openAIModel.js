@@ -65,6 +65,7 @@ class OpenAIModel{
             }
             const msg = `Vị trí tôi muốn ứng tuyển: "${req.body.job}", còn đây là format cả json cv: ${req.body.content}. Hãy tạo cho tôi nội dung cv cho các mục cha: descript, experience, education, skill, activity, certificate, project, hobby, language, mỗi mục sẽ có format như nhau: {title: "" , descript: "" ,from : YYYY-MM-DD ,to: YYYY-MM-DD},  descript mục cha chỉ cần là chuỗi thường. Tạo cho tôi sao cho lịch sự, diễn tả đủ ý mà súc tích, gọn gàng để gây ấn tượng với nhà tuyển dụng. Trả lời đầy đủ bằng chuỗi chứa đầy đủ thông tin trên cv  của tôi và giữ đúng format cv tôi gửi. Không trả lời gì thêm ngoài json cv`
             const fix = await CallOpenAI(msg);
+            console.log(fix) 
             res.json({
                 status: 2000,
                 data: JSON.parse(fix)

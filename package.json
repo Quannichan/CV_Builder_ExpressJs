@@ -13,6 +13,7 @@
   "author": "Tran Minh Quan",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^2.31.0",
     "@prisma/adapter-mariadb": "^7.10.1",
     "argon2": "^0.41.1",
     "base-64": "^1.0.0",

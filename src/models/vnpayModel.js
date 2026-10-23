@@ -55,7 +55,9 @@ class VnpayModel{
             where: { iduser: idu, status : 0 }
         });
 
-        delete payment.data01;
+        if(payment){
+            delete payment.data01;
+        }
         res.json({
             status: 2000,
             data: payment
