@@ -1,52 +1,57 @@
-require('dotenv').config();
-const Hashtool = require('../security/HashTool');
+
+require("dotenv").config();
+
+const nodemailer = require("nodemailer");
+const Hashtool = require("../security/HashTool");
 const { verifyEmailTemplate } = require("../utils/verifyEmailTemplate");
 
-const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.MAIL_FROM,
-        pass: process.env.SMTP_PASS
-    }
+  service: "gmail",
+  auth: {
+    user: process.env.MAIL_FROM,
+    pass: process.env.SMTP_PASS,
+  },
 });
 
-class Mail{
-    async sendMail(toEmail, iduser, name, minutes) {
-        return new Promise((resolve, reject)=>{
+class Mail {
+  async verifyTransport() {
+    await transporter.verify();
+    console.log("SMTP connection and authentication successful.");
+  }
 
-            const now = new Date();
-            const expire = new Date(now.getTime() + minutes * 60 * 1000);
-            const tok = new Hashtool().encodeAES(JSON.stringify(
-                {
-                    id: iduser*1,
-                    mail : toEmail,
-                    e : expire
-                }
-            ))
+  async sendMail(toEmail, iduser, name, minutes) {
+    const now = new Date();
+    const expire = new Date(now.getTime() + minutes * 60 * 1000);
 
-            const message = verifyEmailTemplate(`${process.env.MAIL_VERIFY_URL}?t=${tok}&sv=SvVerify`, name, minutes)
+    const tok = new Hashtool().encodeAES(
+      JSON.stringify({
+        id: Number(iduser),
+        mail: toEmail,
+        e: expire,
+      })
+    );
 
-            const mailOptions = {
-                from: process.env.MAIL_FROM,
-                to: toEmail,                
-                subject: 'Verify your account!',
-                html: message
-            };
-        
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.log('Error:', error);
-                    reject(false);
-                } else {
-                    console.log('Email sent: ' + info.response);
-                    resolve(true);
-                }
-            });
-        })
+    const verifyUrl =
+      `${process.env.MAIL_VERIFY_URL}?t=${encodeURIComponent(tok)}&sv=SvVerify`;
+
+    const message = verifyEmailTemplate(verifyUrl, name, minutes);
+
+    const mailOptions = {
+      from: process.env.MAIL_FROM,
+      to: toEmail,
+      subject: "Verify your account!",
+      html: message,
+    };
+
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent:", info.response);
+      return true;
+    } catch (error) {
+      console.error("Send email failed:", error.code, error.message);
+      throw error;
     }
+  }
 }
 
-const sendmail = new Mail();
-
-module.exports = sendmail;
+module.exports = new Mail();
