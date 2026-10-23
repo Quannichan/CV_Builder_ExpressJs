@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "product" : "node dist/index.js",
+    "product": "node dist/index.js",
     "test": "nodemon src/index.js",
     "dev": "nodemon src/dev.js",
     "seedSample": "node src/seed/seedSample.js",
@@ -13,30 +13,41 @@
   "author": "Tran Minh Quan",
   "license": "ISC",
   "dependencies": {
+    "@prisma/adapter-mariadb": "^7.10.1",
     "argon2": "^0.41.1",
     "base-64": "^1.0.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "cvai_be_expressjs": "file:",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "moment": "^2.30.1",
     "multer": "^2.0.1",
-    "nodemailer": "^7.0.10",
+    "nodemailer": "^10.2.1",
     "openai": "^6.0.0",
     "path": "^0.12.7",
     "qs": "^6.14.0",
     "vnpay": "^2.4.2"
   },
   "devDependencies": {
-    "@prisma/client": "^6.16.3",
+    "@prisma/client": "^7.10.1",
     "axios": "^1.10.0",
     "body-parser": "^2.2.0",
-    "nodemon": "^3.0.2",
-    "prisma": "^6.16.3",
+    "nodemon": "^3.1.14",
+    "prisma": "^7.10.1",
     "request-ip": "^3.3.0",
     "serverless-http": "^3.2.0",
     "tsup": "^8.5.0",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "tar": "^7.5.22"
+  },
+  "allowScripts": {
+    "argon2@0.41.1": true,
+    "bcrypt@5.1.1": true,
+    "@prisma/engines@7.10.1": true,
+    "prisma@7.10.1": true,
+    "esbuild@0.27.2": true
   }
 }

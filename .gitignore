@@ -4,7 +4,6 @@
 /videos
 /images
 /private
-/generated
 # /src/dev.js
 .env
 /dist

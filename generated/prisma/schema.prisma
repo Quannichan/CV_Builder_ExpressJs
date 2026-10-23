@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model User {
+  id            Int           @id @default(autoincrement())
+  name          String?
+  descript      String?       @db.LongText
+  sex           Int           @default(1)
+  address       String?
+  job           String?
+  birthdate     DateTime?
+  portfolio     String?
+  twitter       String?
+  reddit        String?
+  github        String?
+  facebook      String?
+  mail          String?       @unique
+  phone         String?       @unique
+  linked        String?
+  ava           String?
+  pass          String?
+  role          Int
+  date01        DateTime?     @default(now())
+  date02        DateTime?
+  accountType   Int?
+  emailVerified Boolean       @default(false)
+  verifyToken   String?       @db.VarChar(255)
+  Payment       Payment[]
+  posts         Post[]
+  CV            PostSample[]
+  SharedPosts   SharedPosts[]
+
+  @@index([emailVerified])
+  @@index([role])
+}
+
+model SharedPosts {
+  userId Int
+  postId Int
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+  @@index([postId], map: "SharedPosts_postId_fkey")
+}
+
+model Post {
+  id          Int           @id @default(autoincrement())
+  iduser      Int?
+  img         String?       @db.LongText
+  content     String?       @db.LongText
+  stat01      Int?
+  stat02      Int?
+  lang        String        @default("vi")
+  date01      DateTime?     @default(now())
+  date02      DateTime?
+  idSample    Int
+  typ01       String?
+  PostSample  PostSample    @relation(fields: [idSample], references: [id])
+  user        User?         @relation(fields: [iduser], references: [id])
+  SharedPosts SharedPosts[]
+
+  @@index([idSample])
+  @@index([iduser])
+  @@index([lang])
+}
+
+model PostSample {
+  id       Int       @id @default(autoincrement())
+  iduser   Int?
+  img      String?
+  name     String
+  descript String?
+  typ01    Json?
+  typ02    Json?
+  typ03    Json?
+  date01   DateTime? @default(now())
+  date02   DateTime?
+  used     Post[]
+  user     User?     @relation(fields: [iduser], references: [id])
+
+  @@index([iduser])
+}
+
+model Payment {
+  id     Int       @id @default(autoincrement())
+  iduser Int
+  type   Int
+  amount Int
+  data01 String    @db.LongText
+  status Int
+  date01 DateTime  @default(now())
+  date02 DateTime?
+  user   User      @relation(fields: [iduser], references: [id], onDelete: Cascade)
+
+  @@index([iduser])
+  @@index([type, status])
+}
