@@ -32,10 +32,10 @@ app.use(express.urlencoded({limit: '300mb', extended: true }));
 // }));
 
 app.use(cors({
-    // origin: [`http://localhost:5173`, `http://localhost:5174`, 'https://2bdb2c879dff.ngrok-free.app'],
     origin: [
     "http://localhost:5173",
     "http://localhost:5174",
+    process.env.FRONTEND_URL
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', "OPTIONS"],
     allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Tokenizer', 'Authorization'],
