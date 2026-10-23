@@ -7,3 +7,4 @@
 # /src/dev.js
 .env
 /dist
+/certs/ca.pem
