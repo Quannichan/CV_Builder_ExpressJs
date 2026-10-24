@@ -1,20 +1,29 @@
 
 require("dotenv").config();
 
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 const Hashtool = require("../security/HashTool");
 const { verifyEmailTemplate } = require("../utils/verifyEmailTemplate");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+    host: "://gmail.com",
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    auth: {
+        user: process.env.MAIL_FROM,
+        pass: process.env.SMTP_PASS
+    },
+    tls: {
+        rejectUnauthorized: false 
+    },
+    connectionTimeout: 10000
+});
 
 class Mail {
   async verifyTransport() {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error("Missing RESEND_API_KEY environment variable.");
-    }
-
-    console.log("Resend API configuration is present.");
-    return true;
+    await transporter.verify();
+    console.log("SMTP connection and authentication successful.");
   }
 
   async sendMail(toEmail, iduser, name, minutes) {
@@ -35,33 +44,18 @@ class Mail {
     const message = verifyEmailTemplate(verifyUrl, name, minutes);
 
     const mailOptions = {
-      from:
-        process.env.MAIL_FROM,
+      from: process.env.MAIL_FROM,
       to: toEmail,
       subject: "Verify your account!",
       html: message,
     };
 
     try {
-      if (!process.env.RESEND_API_KEY) {
-        throw new Error("Missing RESEND_API_KEY environment variable.");
-      }
-
-      const { data, error } = await resend.emails.send(mailOptions);
-
-      if (error) {
-        console.error("Send email failed:", error);
-        throw new Error(error.message || "Resend failed to send email.");
-      }
-
-      console.log("Email accepted by Resend:", {
-        id: data?.id,
-        to: toEmail,
-      });
-
+      const info = await transporter.sendMail(mailOptions);
+      console.log("Email sent:", info.response);
       return true;
     } catch (error) {
-      console.error("Send email failed:", error.message);
+      console.error("Send email failed:", error.code, error.message);
       throw error;
     }
   }
