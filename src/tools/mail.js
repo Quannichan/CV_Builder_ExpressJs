@@ -6,9 +6,9 @@ const Hashtool = require("../security/HashTool");
 const { verifyEmailTemplate } = require("../utils/verifyEmailTemplate");
 
 const transporter = nodemailer.createTransport({
-    host: "://gmail.com",
+    host: "smtp.gmail.com", 
     port: 587,
-    secure: false,
+    secure: false, 
     requireTLS: true,
     auth: {
         user: process.env.MAIL_FROM,
@@ -16,8 +16,7 @@ const transporter = nodemailer.createTransport({
     },
     tls: {
         rejectUnauthorized: false 
-    },
-    connectionTimeout: 10000
+    }
 });
 
 class Mail {
