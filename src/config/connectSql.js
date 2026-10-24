@@ -27,8 +27,28 @@ async function testConnection() {
     const count = await prisma.user.count();
     console.log("Prisma connected successfully. User count:", count);
   } catch (err) {
-    console.error("Prisma connection failed:", err);
+    printError(err);
     throw err;
+  }
+}
+
+function printError(err, depth = 0) {
+  if (!err || depth > 5) return;
+
+  console.error(`DB error level ${depth}:`, {
+    name: err.name,
+    message: err.message,
+    code: err.code,
+    errno: err.errno,
+    sqlState: err.sqlState,
+  });
+
+  if (err.cause) {
+    printError(err.cause, depth + 1);
+  }
+
+  if (err.originalError) {
+    printError(err.originalError, depth + 1);
   }
 }
 
