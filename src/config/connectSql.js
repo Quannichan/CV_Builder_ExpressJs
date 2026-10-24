@@ -1,7 +1,5 @@
 require("dotenv/config");
 
-const fs = require("node:fs");
-const path = require("node:path");
 const { PrismaClient } = require("../../generated/prisma");
 const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
 
@@ -12,10 +10,7 @@ const adapter = new PrismaMariaDb({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-        ca: fs.readFileSync(
-            path.resolve(__dirname, process.env.CA_FILE),
-            "utf8"
-        ),
+        ca: process.env.CA_FILE,
     },
 });
 
