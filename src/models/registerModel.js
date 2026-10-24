@@ -37,8 +37,8 @@ class registerModel{
             const name_file = `${name}-image.${ext}`;
             console.log(name_file);
             await writeFile(name_file, data, save_path)
-            .then(()=>{
-                resolve(`${name_file}`);
+            .then((d)=>{
+                resolve(`${d}`);
             })
             .catch((err)=>{
                 console.log(err);

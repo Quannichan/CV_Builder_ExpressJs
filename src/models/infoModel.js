@@ -550,8 +550,8 @@ class infoModel{
             const data = matches[2];
             const name_file = `${name}-image.${ext}`;
             await writeFile(name_file, data, savePath)
-            .then(()=>{
-                resolve(`${name_file}`);
+            .then((d)=>{
+                resolve(`${d}`);
             })
             .catch((err)=>{
                 console.log(err);

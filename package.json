@@ -17,6 +17,7 @@
     "argon2": "^0.41.1",
     "base-64": "^1.0.0",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.11.0",
     "cors": "^2.8.5",
     "cvai_be_expressjs": "file:",
     "dotenv": "^17.4.2",
