@@ -8,7 +8,8 @@
     "test": "nodemon src/index.js",
     "dev": "nodemon src/dev.js",
     "seedSample": "node src/seed/seedSample.js",
-    "build": "tsup"
+    "build": "tsup",
+    "start": "node src/dev.js"
   },
   "author": "Tran Minh Quan",
   "license": "ISC",
