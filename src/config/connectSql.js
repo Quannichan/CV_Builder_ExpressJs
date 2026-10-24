@@ -3,15 +3,20 @@ require("dotenv/config");
 const { PrismaClient } = require("../../generated/prisma");
 const { PrismaMariaDb } = require("@prisma/adapter-mariadb");
 
+const ca = process.env.CA_FILE?.replace(/\\n/g, "\n");
+
 const adapter = new PrismaMariaDb({
-  host: process.env.DB_HOST || "localhost",
-  port: Number(process.env.DB_PORT) || 3306,
+  host: process.env.DB_HOST,
+  port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   ssl: {
-        ca: process.env.CA_FILE,
-    },
+    ca,
+    rejectUnauthorized: true,
+  },
+  connectionLimit: 5,
+  connectTimeout: 10000,
 });
 
 const prisma = new PrismaClient({ adapter });
@@ -19,14 +24,12 @@ const prisma = new PrismaClient({ adapter });
 async function testConnection() {
   try {
     await prisma.$connect();
-    const test = await prisma.user.count();
-    console.log(test) 
-    console.log("✅ Prisma đã kết nối thành công!");
+    const count = await prisma.user.count();
+    console.log("Prisma connected successfully. User count:", count);
   } catch (err) {
-    console.error("❌ Lỗi kết nối Prisma:", err);
-  } finally {
-    await prisma.$disconnect();
+    console.error("Prisma connection failed:", err);
+    throw err;
   }
 }
 
-module.exports = { testConnection, prisma };   
+module.exports = { testConnection, prisma };
